@@ -8,5 +8,5 @@ case class Square(x: Char, y: Int, state: State.Value){
 }
 
 object State extends Enumeration {
-  val UNKNOWN, HIT, SHOT, OCCUPIED, SINK = Value
+  val WATER, HIT, SHOT, OCCUPIED, SINK = Value
 }

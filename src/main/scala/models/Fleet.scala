@@ -33,7 +33,7 @@ case class Fleet(listShips: Set[Ship] = Set()) {
       if(hitShips.nonEmpty) {
         if (hitShips.head.isSink) Some(hitShips.head)
         else None
-      } else{
+      } else {
         None
     }
     val touched: Boolean = hitShips.nonEmpty
@@ -47,5 +47,13 @@ case class Fleet(listShips: Set[Ship] = Set()) {
 
   def isSink: Boolean = {
     this.listShips.dropWhile(ship => ship.isSink).isEmpty
+  }
+
+  def isTouched(square: Square): Boolean = {
+    listShips.dropWhile(ship => ship.isTouched(square)).isEmpty
+  }
+
+  def isShot(square: Square): Boolean = {
+    listShips.dropWhile(ship => ship.isTouched(square)).isEmpty
   }
 }

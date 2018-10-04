@@ -10,13 +10,19 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
   override def placeShips(listShips: List[TypeShip]): Player = {
     @tailrec
     def placeShipTailRec(listShips: List[TypeShip], fleet: Fleet): Fleet ={
-      if(listShips.isEmpty) fleet
+      println()
+      if(listShips.isEmpty) {
+        Board.renderGridReceived(this)
+        fleet
+      }
       else{
         val newFleet: Option[Fleet] = fleet.addShip(this.createShip(listShips.head))
-        if(newFleet.isDefined){
+        if(newFleet.isDefined) {
+          Board.renderGridReceived(this.copy(fleet = newFleet.get))
           placeShipTailRec(listShips.tail, newFleet.get)
         } else {
           println("The ships you placed is superimposed with an other ship already inside your fleet")
+          Board.renderGridReceived(this)
           placeShipTailRec(listShips, fleet)
         }
       }
@@ -130,7 +136,11 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
 
   override def receivedShot(square: Square): (Player, Boolean, Option[Ship]) = {
     val (newFleet: Fleet, touched: Boolean, ship: Option[Ship]) = fleet.receivedShot(square)
-    (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square), touched, ship)
+    if(touched){
+      (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square.copy(state = State.HIT)), touched, ship)
+    } else {
+      (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square), touched, ship)
+    }
   }
 
   override def didLose(): Boolean = {
