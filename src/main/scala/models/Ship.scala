@@ -36,7 +36,7 @@ case class Ship(positions: Set[Square], typeShip: TypeShip) {
   }
 
   def isTouched(square: Square): Boolean = {
-    positions.dropWhile(squareShip => (squareShip.x == square.x) && (squareShip.y == square.y)).nonEmpty
+    positions.dropWhile(squareShip => squareShip.x != square.x || squareShip.y != square.y).nonEmpty
   }
 
   def isSink: Boolean = {
