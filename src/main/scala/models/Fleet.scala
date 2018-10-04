@@ -31,7 +31,7 @@ case class Fleet(listShips: Set[Ship] = Set()) {
     val hitShips: Set[Ship] = newListShips.dropWhile(ship => !ship.isTouched(square))
     val ship: Option[Ship] =
       if(hitShips.nonEmpty) {
-        if (hitShips.head.isDown) Some(hitShips.head)
+        if (hitShips.head.isSink) Some(hitShips.head)
         else None
       } else{
         None
@@ -45,7 +45,7 @@ case class Fleet(listShips: Set[Ship] = Set()) {
     else listShips.dropWhile(shipFleet => !shipFleet.isOverlaps(ship)).nonEmpty
   }
 
-  def isDown: Boolean = {
-    this.listShips.dropWhile(ship => ship.isDown).isEmpty
+  def isSink: Boolean = {
+    this.listShips.dropWhile(ship => ship.isSink).isEmpty
   }
 }

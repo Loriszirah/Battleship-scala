@@ -39,7 +39,7 @@ case class Ship(positions: Set[Square], typeShip: TypeShip) {
     positions.dropWhile(squareShip => (squareShip.x == square.x) && (squareShip.y == square.y)).nonEmpty
   }
 
-  def isDown: Boolean = {
+  def isSink: Boolean = {
     this.positions.dropWhile(square => square.state==State.SINK).isEmpty
   }
 
@@ -57,7 +57,7 @@ object Ship {
   val SUBMARINE: TypeShip = TypeShip("Submarine", 3)
   val DESTROYER: TypeShip = TypeShip("Destroyer", 2)
 
-  def apply(positions: Set[Square], typeShip: TypeShip) = Ship(positions, typeShip)
+  def apply(positions: Set[Square], typeShip: TypeShip) = new Ship(positions, typeShip)
 
   def apply(x: Char, y: Int, orientation: String, typeShip: TypeShip): Option[Ship] = {
     val positions = generatePosition(x, y, orientation, typeShip)
@@ -97,6 +97,10 @@ object Ship {
         }
       }
     }
-    generatePositionTailRec(x, y, orientation, typeShip, Set())
+    if(Board.xInBoard(x) && Board.yInBoard(y)){
+      generatePositionTailRec(x, y, orientation, typeShip, Set())
+    } else{
+      None
+    }
   }
 }
