@@ -49,18 +49,18 @@ object Battleship extends App {
       case "HvsAI" =>
         val usernameP1: String = readLine("Enter your username: ")
         player1 = Human(usernameP1)
-        player2 = getAI(randomP2)
+        player2 = getAI(username = "2", randomP2)
       case "HvsH" =>
         val usernameP1: String = readLine("Enter the username of the player 1: ")
-        player1 = Human(usernameP1, Fleet())
+        player1 = Human(usernameP1)
         val usernameP2: String = readLine("Enter the username of the player 2: ")
         player2 = Human(usernameP2)
       case "AIvsAI" =>
         println("First AI")
-        player1 = getAI(randomP1)
+        player1 = getAI(username = "1", randomP1)
         println()
         println("Second AI")
-        player2 = getAI(randomP2)
+        player2 = getAI(username = "2", randomP2)
       case _ =>
         println("Unknown game mode")
         mainLoop(gameState, randomP1, randomP2)
@@ -85,16 +85,25 @@ object Battleship extends App {
 
     if(newPlayer1.didLose()){
       println(s"${newPlayer2.username} won the Game. Well Played!!!!")
+      println(newPlayer2.listShotsGiven.size)
+      println(newPlayer1.listShotsGiven.size)
     } else if(newPlayer2.didLose()){
       println(s"${newPlayer1.username} won the Game. Well Played!!!!")
+      println(newPlayer1.listShotsGiven.size)
+      println(newPlayer2.listShotsGiven.size)
     } else{
+      // TODO : Pause the game if the current player is a human
+      //Thread.sleep(1000)
       gameLoop(GameState(newPlayer2, newPlayer1))
     }
   }
 
   @tailrec
   def getGameMode: String = {
-    val gameMode: String = scala.io.StdIn.readLine("Do you want to play => 1: AI vs AI // 2: Human vs AI // 3: Human vs Human")
+    val gameMode: String = scala.io.StdIn.readLine("Do you want to play :" +
+      "   - 1: AI vs AI " +
+      "   - 2: Human vs AI" +
+      "   - 3: Human vs Human")
     gameMode match {
       case "1" => "AIvsAI"
       case "2" => "HvsAI"
@@ -106,18 +115,18 @@ object Battleship extends App {
   }
 
   @tailrec
-  def getAI(random: Random): Player = {
+  def getAI(username: String, random: Random): Player = {
     val AIlevel: String = readLine("There is 3 levels of IA. Which one do you want to play against ? L: Low, M: Medium, H: Hard")
     AIlevel match {
       case "L" =>
-        LowAI(random = randomP2)
+        LowAI(username = "LowAI " + username, random = randomP2)
       case "M" =>
-        MediumAI(random = randomP2)
+        MediumAI(username = "MediumAI " + username, random = randomP2)
       case "H" =>
-        HardAI(random = randomP2)
+        HardAI(username = "HardAI " + username, random = randomP2)
       case _ =>
         println("Unspecified AILevel")
-        getAI(random)
+        getAI(username, random)
     }
   }
 }

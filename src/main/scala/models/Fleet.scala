@@ -14,7 +14,6 @@ case class Fleet(listShips: Set[Ship] = Set()) {
 
   def addShip(ship: Ship): Option[Fleet] = {
     if(!isOverlaps(ship)) {
-      ship.showPositions()
       Some(this.copy(listShips = this.listShips + ship))
     } else{
       None

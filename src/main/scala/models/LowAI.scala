@@ -50,34 +50,42 @@ case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGi
   }
 
   override def hasShot(square: Square, hasTouched: Boolean, sinkShip: Option[Ship]): Player = {
-    if(hasTouched){
-      if(sinkShip.isEmpty) {
-        println("Touched !")
-        this.copy(listShotsGiven = listShotsGiven + square.copy(state = State.HIT)).asInstanceOf[Player]
+    if(this.listShotsGiven.exists(squarePlayer => squarePlayer.x == square.x && squarePlayer.y == square.y)){
+      this
+    } else {
+      if (hasTouched) {
+        if (sinkShip.isEmpty) {
+          println("Touched !")
+          this.copy(listShotsGiven = listShotsGiven + square.copy(state = State.HIT))
+        } else {
+          println(s"SINK !!! ${sinkShip.get.typeShip.name} with a size of ${sinkShip.get.typeShip.size}")
+          val newListShotsGiven: Set[Square] = listShotsGiven + square
+          val newListSinkShips: Set[Ship] = listSinkShips + sinkShip.get
+          this.copy(listShotsGiven = newListShotsGiven.map(square => if (sinkShip.get.isTouched(square)) square.copy(state = State.SINK) else square), listSinkShips = newListSinkShips)
+        }
       } else {
-        println(s"SINK !!! ${sinkShip.get.typeShip.name} with a size of ${sinkShip.get.typeShip.size}")
-        val newListShotsGiven: Set[Square] = listShotsGiven + square
-        val newListSinkShips: Set[Ship] = listSinkShips + sinkShip.get
-        this.copy(listShotsGiven = newListShotsGiven.map(square => if(sinkShip.get.isTouched(square)) square.copy(state = State.SINK) else square), listSinkShips = newListSinkShips)
+        println("Missed :(")
+        this.copy(listShotsGiven = listShotsGiven + square)
       }
-    } else{
-      println("Missed :(")
-      this.copy(listShotsGiven = listShotsGiven + square)
     }
   }
 
   override def receivedShot(square: Square): (Player, Boolean, Option[Ship]) = {
     val (newFleet: Fleet, touched: Boolean, ship: Option[Ship]) = fleet.receivedShot(square)
-    if(touched && ship.isDefined){
-      val newListShotsReceived: Set[Square] = (listShotsReceived + square.copy(state = State.SINK)).map(square => {
-        val squareShip: Option[Square] = ship.get.positions.find(squareShip => squareShip.x == square.x && squareShip.y == square.y)
-        squareShip.getOrElse(square)
-      })
-      (this.copy(fleet = newFleet, listShotsReceived = newListShotsReceived), touched, ship)
-    } else if(touched && ship.isEmpty) {
-      (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square.copy(state = State.HIT)), touched, ship)
+    if(this.listShotsReceived.exists(squarePlayer => squarePlayer.x == square.x && squarePlayer.y == square.y)){
+      (this, touched, ship)
     } else {
-      (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square), touched, ship)
+      if (touched && ship.isDefined) {
+        val newListShotsReceived: Set[Square] = (listShotsReceived + square.copy(state = State.SINK)).map(square => {
+          val squareShip: Option[Square] = ship.get.positions.find(squareShip => squareShip.x == square.x && squareShip.y == square.y)
+          squareShip.getOrElse(square)
+        })
+        (this.copy(fleet = newFleet, listShotsReceived = newListShotsReceived), touched, ship)
+      } else if (touched && ship.isEmpty) {
+        (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square.copy(state = State.HIT)), touched, ship)
+      } else {
+        (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square), touched, ship)
+      }
     }
   }
 }
