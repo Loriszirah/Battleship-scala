@@ -1,16 +1,47 @@
 package main
 
-import models.{Fleet, Human, Player, Square, GameState}
+import models._
 import utils.Board
+
 import scala.io.StdIn.readLine
 import scala.annotation.tailrec
+import scala.util.Random
 
 object Battleship extends App {
 
-  mainLoop(GameState(null, null))
+  val randomP1: Random = new Random(3)
+  val randomP2: Random = new Random(2)
+  mainLoop(GameState(null, null), randomP1, randomP2)
 
-  def mainLoop(gameState: GameState): Unit ={
+  def mainLoop(gameState: GameState, randomP1: Random, randomP2: Random): Unit ={
     println("Welcome to the Battleship Game...")
+    println(s""" ${Console.BLUE}
+
+                             _           _   _   _           _     _
+                            | |         | | | | | |         | |   (_)
+                            | |__   __ _| |_| |_| | ___  ___| |__  _ _ __
+                            | '_ \\ / _` | __| __| |/ _ \\/ __| '_ \\| | '_ \\
+                            | |_) | (_| | |_| |_| |  __/\\__ \\ | | | | |_) |
+                            |_.__/ \\__,_|\\__|\\__|_|\\___||___/_| |_|_| .__/
+                                                                    | |
+                                                                    |_|
+       ${Console.RESET}""")
+    println(
+      s""" ${Console.GREEN}
+
+                                                |\\/|
+                                                ---
+                                               / | [
+                                        !      | |||
+                                      _/|     _/|-++'
+                  ${Console.RED}.!,${Console.GREEN}      _      +  +--|    |--|--|_ |-
+                  ${Console.RED}-${Console.YELLOW}*${Console.RED}-${Console.GREEN}=====| |{ /|__|   |/\\__|  |--- |||__/
+                  ${Console.RED}'|`${Console.GREEN}         +---------------___[}-_===_.'____                 /\\
+                          ____`-' ||___-{]_| _[}-  |     |_[___\\==--            \\/   _
+           __..._____--==/___]_|__|_____________________________[___\\==--____,------' .7
+          |                                                               IG5-CARRIER/
+           \\________________________________________________________________________|
+       ${Console.RESET}""")
     var player1: Player = null
     var player2: Player = null
     val gameMode: String = getGameMode
@@ -18,18 +49,21 @@ object Battleship extends App {
       case "HvsAI" =>
         val usernameP1: String = readLine("Enter your username: ")
         player1 = Human(usernameP1)
-        println("There is 3 levels of IA. Which one do you want to play against ? L: Low, M: Medium, H: Hard")
-        // TODO : Change readChar
-        val IAlevel: Char = readChar()
+        player2 = getAI(randomP2)
       case "HvsH" =>
         val usernameP1: String = readLine("Enter the username of the player 1: ")
-        player1 = Human(usernameP1, Fleet(Set()))
+        player1 = Human(usernameP1, Fleet())
         val usernameP2: String = readLine("Enter the username of the player 2: ")
         player2 = Human(usernameP2)
       case "AIvsAI" =>
+        println("First AI")
+        player1 = getAI(randomP1)
+        println()
+        println("Second AI")
+        player2 = getAI(randomP2)
       case _ =>
         println("Unknown game mode")
-        mainLoop(gameState)
+        mainLoop(gameState, randomP1, randomP2)
     }
 
     // val typeShipsToPlace: List[TypeShip] = List(Ship.CARRIER, Ship.BATTLESHIP, Ship.CRUISER, Ship.DESTROYER, Ship.SUBMARINE)
@@ -58,6 +92,7 @@ object Battleship extends App {
     }
   }
 
+  @tailrec
   def getGameMode: String = {
     val gameMode: String = scala.io.StdIn.readLine("Do you want to play => 1: AI vs AI // 2: Human vs AI // 3: Human vs Human")
     gameMode match {
@@ -67,6 +102,22 @@ object Battleship extends App {
       case _ =>
         println("Please enter a number between 1 and 3")
         getGameMode
+    }
+  }
+
+  @tailrec
+  def getAI(random: Random): Player = {
+    val AIlevel: String = readLine("There is 3 levels of IA. Which one do you want to play against ? L: Low, M: Medium, H: Hard")
+    AIlevel match {
+      case "L" =>
+        LowAI(random = randomP2)
+      case "M" =>
+        MediumAI(random = randomP2)
+      case "H" =>
+        HardAI(random = randomP2)
+      case _ =>
+        println("Unspecified AILevel")
+        getAI(random)
     }
   }
 }
