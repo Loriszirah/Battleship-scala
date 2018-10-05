@@ -5,7 +5,8 @@ import models._
 import scala.annotation.tailrec
 
 object Board {
-  val typeShipsToPlace: List[TypeShip] = List(Ship.DESTROYER)
+  //val typeShipsToPlace: List[TypeShip] = List(Ship.CARRIER, Ship.BATTLESHIP, Ship.CRUISER, Ship.SUBMARINE, Ship.DESTROYER)
+  val typeShipsToPlace: List[TypeShip] = List(Ship.CARRIER, Ship.BATTLESHIP)
   val startX = 'A'
   val endX = 'J'
 
@@ -56,45 +57,49 @@ object Board {
     else false
   }
 
+  @tailrec
+  def renderGridBorderXTailRec(x: Char): Unit ={
+    if(Board.nextX(x).isDefined){
+      print(s"|__${x}__|")
+      renderGridBorderXTailRec(Board.nextX(x).get)
+    } else{
+      println(s"|__${x}__|")
+    }
+  }
+
+  def renderLegend(): Unit = {
+
+  }
+
   def renderGridGiven(player: Player): Unit = {
     def printState(x: Char, y: Int, player: Player, end: Boolean): Unit = {
       if(Board.startX == x) {
-        if(y == Board.endY) print(y + " ")
-        else print(y + "  ")
+        if(y == Board.endY) print(y + "_")
+        else print(y + "__")
       }
-      val square: Option[Square] =  player.listShotsGiven.find(square => square.x == x && square.y == y)
+      val square: Option[Square] = player.listShotsGiven.find(square => square.x == x && square.y == y)
       if(square.isDefined){
         square.get.state match {
           case State.SINK => {
-            if(end) println(Console.GREEN_B + Console.BLACK + s"[_${64.toChar}_]" + Console.BLINK)
-            else print(Console.GREEN_B + Console.BLACK + s"__${64.toChar}__" + Console.BLINK)
+            if(end) println(Console.GREEN_B + Console.BLACK + s"|[_${35.toChar}_]|" + Console.RESET)
+            else print(Console.GREEN_B + Console.BLACK + s"|[_${35.toChar}_]|" + Console.RESET)
           }
           case State.HIT => {
-            if(end) println(Console.YELLOW_B + Console.BLACK + "[_X_]" + Console.BLINK)
-            else print(Console.YELLOW_B + Console.BLACK + "[_X_]" + Console.BLINK)
+            if(end) println(Console.YELLOW_B + Console.BLACK + "|[_X_]|" + Console.RESET)
+            else print(Console.YELLOW_B + Console.BLACK + "|[_X_]|" + Console.RESET)
           }
           case State.SHOT => {
-            if(end) println(Console.BLACK + "__X__" + Console.BLINK)
-            else print(Console.BLACK + "__X__" + Console.BLINK)
+            if(end) println(Console.BLUE_B + Console.BLACK + "|__X__|" + Console.RESET)
+            else print(Console.BLUE_B + Console.BLACK + "|__X__|" + Console.RESET)
           }
           case _ => {
-            if(end) println(Console.BLUE_B + Console.BLACK + "_____" + Console.BLINK)
-            else print(Console.BLUE_B + Console.BLACK + "_____" + Console.BLINK)
+            if(end) println(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
+            else print(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
           }
         }
       } else {
-        if(end) println(Console.BLUE_B + Console.BLACK + "_____" + Console.BLINK)
-        else print(Console.BLUE_B + Console.BLACK + "_____" + Console.BLINK)
-      }
-    }
-
-    @tailrec
-    def renderGridGivenBorderXTailRec(x: Char): Unit ={
-      if(Board.nextX(x).isDefined){
-        print(s"__${x}__")
-        renderGridGivenBorderXTailRec(Board.nextX(x).get)
-      } else{
-        println(s"__${x}__")
+        if(end) println(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
+        else print(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
       }
     }
 
@@ -112,9 +117,10 @@ object Board {
         }
       }
     }
+
     println("*********Grid with the shots given*********")
-    print(" ")
-    renderGridGivenBorderXTailRec(Board.startX)
+    print("   ")
+    Board.renderGridBorderXTailRec(Board.startX)
     renderGridGivenTailRec(Board.startX, Board.startY, player)
     println()
   }
@@ -122,44 +128,35 @@ object Board {
   def renderGridReceived(player: Player): Unit = {
     def printState(x: Char, y: Int, player: Player, end: Boolean): Unit = {
       if(Board.startX == x) {
-        if(y == Board.endY) print(y + " ")
-        else print(y + "  ")
+        if(y == Board.endY) print(y + "_")
+        else print(y + "__")
       }
       val square: Option[Square] = player.listShotsReceived.find(square => square.x == x && square.y == y)
       if(square.isDefined) {
         square.get.state match {
+          case State.SINK =>
+            if(end) println(Console.RED_B + Console.WHITE + s"|[_${35.toChar}_]|" + Console.RESET)
+            else print(Console.RED_B + Console.WHITE + s"|[_${35.toChar}_]|" + Console.RESET)
           case State.HIT =>
-            if(end) println(Console.RED_B + Console.WHITE + "[_X_]" + Console.BLINK)
-            else print(Console.RED_B + Console.WHITE + "[_X_]" + Console.BLINK)
+            if(end) println(Console.RED_B + Console.WHITE + "|[_X_]|" + Console.RESET)
+            else print(Console.RED_B + Console.WHITE + "|[_X_]|" + Console.RESET)
           case State.SHOT =>
-            if(end) println(Console.BLACK + "__X__" + Console.BLINK)
-            else print(Console.BLACK + "__X__" + Console.BLINK)
+            if(end) println(Console.BLUE_B + Console.BLACK + "|__X__|" + Console.RESET)
+            else print(Console.BLUE_B + Console.BLACK + "|__X__|" + Console.RESET)
           case _ =>
-            if(end) println(Console.BLUE_B + Console.BLACK + "_____" + Console.BLINK)
-            else print(Console.BLUE_B + Console.BLACK + "_____" + Console.BLINK)
+            if(end) println(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
+            else print(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
         }
       } else {
-        val test = player.fleet.listShips.map(ship => ship.positions.find(square =>
-          square.x == x && square.y == y))
         val square: Option[Option[Square]] = player.fleet.listShips.map(ship => ship.positions.find(square =>
           square.x == x && square.y == y)).find(square => square.isDefined)
         if(square.isDefined){
-          if(end) println(Console.GREEN_B + "[___]" + Console.BLINK)
-          else print(Console.GREEN_B + "[___]" + Console.BLINK)
+          if(end) println(Console.GREEN_B + "|[___]|" + Console.RESET)
+          else print(Console.GREEN_B + "|[___]|" + Console.RESET)
         } else {
-          if(end) println(Console.BLUE_B + Console.BLACK + "____" + Console.BLINK)
-          else print(Console.BLUE_B + Console.BLACK + "_____" + Console.BLINK)
+          if(end) println(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
+          else print(Console.BLUE_B + Console.BLACK + "|_____|" + Console.RESET)
         }
-      }
-    }
-
-    @tailrec
-    def renderGridReceivedBorderXTailRec(x: Char): Unit ={
-      if(Board.nextX(x).isDefined){
-        print(s"__${x}__")
-        renderGridReceivedBorderXTailRec(Board.nextX(x).get)
-      } else{
-        println(s"__${x}__")
       }
     }
 
@@ -177,9 +174,10 @@ object Board {
         }
       }
     }
+
     println("*********Grid with the shots received*********")
     print("   ")
-    renderGridReceivedBorderXTailRec(Board.startX)
+    renderGridBorderXTailRec(Board.startX)
     renderGridReceivedTailRec(Board.startX, Board.startY, player)
     println()
   }

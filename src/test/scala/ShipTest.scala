@@ -76,19 +76,23 @@ class ShipTest extends FlatSpec with Matchers {
   it should "not be sink with 1 out of 2 hit" in {
     val ship = Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get
     val shipHit1 = ship.receivedShot(Square('A', 1, State.SHOT))
-    assert(!shipHit1.isSink)
+    assert(!shipHit1.isSunk)
   }
 
   // ############ Test isSink method ############
-  it should "not be sink with 0 hit" in {
-    assert(!Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get.isSink)
+  it should "not be sunk with 1 hit and 1 shot with only a common x or y" in {
+    //assert(!Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get.isSunk)
+    val ship = Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get
+    val shipHit1 = ship.receivedShot(Square('A', 1, State.SHOT))
+    val shipHit2 = shipHit1.receivedShot(Square('F', 1, State.SHOT))
+    assert(!shipHit2.isSunk)
   }
 
-  it should "be sink" in {
+  it should "be sunk" in {
     val ship = Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get
     val shipHit1 = ship.receivedShot(Square('A', 1, State.SHOT))
     val shipHit2 = shipHit1.receivedShot(Square('B', 1, State.SHOT))
-    assert(shipHit2.isSink)
+    assert(shipHit2.isSunk)
   }
 
   // ############ Test generatePosition method ############
@@ -97,11 +101,6 @@ class ShipTest extends FlatSpec with Matchers {
   }
 
   it should "generate right positions" in {
-    assert(Ship.generatePosition('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get ==
-      Set(Square('A', 1, State.OCCUPIED), Square('B', 1, State.OCCUPIED)))
-  }
-
-  it should "generate right positions 2" in {
     assert(Ship.generatePosition('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get ==
       Set(Square('A', 1, State.OCCUPIED), Square('B', 1, State.OCCUPIED)))
   }

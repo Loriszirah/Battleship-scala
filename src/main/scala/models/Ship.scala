@@ -11,13 +11,13 @@ case class Ship(positions: Set[Square], typeShip: TypeShip) {
   }
 
   def receivedShot(square: Square): Ship = {
-    if(this.positions.dropWhile(squareShip => (squareShip.x == square.x) && (squareShip.y == square.y)).nonEmpty){
+    if(this.positions.dropWhile(squareShip => (squareShip.x != square.x) && (squareShip.y != square.y)).nonEmpty){
       val newPositions: Set[Square] = this.positions.map(squareShip =>
-        if((squareShip.x == square.x) && (squareShip.y == square.y)) Square(square.x, square.y, State.HIT)
+        if((squareShip.x == square.x) && (squareShip.y == square.y)) square.copy(state = State.HIT)
         else squareShip)
-      if(newPositions.dropWhile(square => square.state == State.HIT).isEmpty){
+      if(newPositions.dropWhile(square => square.state == State.HIT).isEmpty) {
         this.copy(positions = newPositions.map(square => square.copy(state = State.SINK)))
-      } else{
+      } else {
         this.copy(positions = newPositions)
       }
     } else{
@@ -39,7 +39,7 @@ case class Ship(positions: Set[Square], typeShip: TypeShip) {
     positions.dropWhile(squareShip => squareShip.x != square.x || squareShip.y != square.y).nonEmpty
   }
 
-  def isSink: Boolean = {
+  def isSunk: Boolean = {
     this.positions.dropWhile(square => square.state==State.SINK).isEmpty
   }
 
@@ -80,16 +80,16 @@ object Ship {
           case Ship.HORIZONTAL =>
             val nextX = Board.nextX(x)
             nextX match {
-              case Some(_) =>
-                generatePositionTailRec(nextX.get, y, orientation, typeShip, positions + Square(x,y, State.OCCUPIED))
+              case Some(obj) =>
+                generatePositionTailRec(obj, y, orientation, typeShip, positions + Square(x,y, State.OCCUPIED))
               case None =>
                 None
             }
           case Ship.VERTICAL =>
             val nextY = Board.nextY(y)
             nextY match {
-              case Some(_) =>
-                generatePositionTailRec(x, nextY.get, orientation, typeShip, positions + Square(x,y, State.OCCUPIED))
+              case Some(obj) =>
+                generatePositionTailRec(x, obj, orientation, typeShip, positions + Square(x,y, State.OCCUPIED))
               case None =>
                 None
             }

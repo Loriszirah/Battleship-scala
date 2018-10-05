@@ -3,6 +3,7 @@ package models
 import utils.Board
 
 import scala.annotation.tailrec
+import scala.io.StdIn.readLine
 
 case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShotsGiven: Set[Square] = Set(),
                  listShotsReceived: Set[Square] = Set(), listSinkShips: Set[Ship] = Set()) extends Player {
@@ -54,30 +55,10 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
             orientation match {
               case "H" =>
                 val ship = Ship(charX, y.toInt, Ship.HORIZONTAL, typeShip)
-                if(ship.isDefined){
-                  ship.get
-                } else{
-                  createShip(typeShip)
-                }
-                /*ship match {
-                  case Some(ship) =>
-                    ship
-                  case _ =>
-                    createShip(typeShip)
-                }*/
+                ship.getOrElse(createShip(typeShip))
               case "V" =>
                 val ship = Ship(charX, y.toInt, Ship.VERTICAL, typeShip)
-                if(ship.isDefined){
-                  ship.get
-                } else{
-                  createShip(typeShip)
-                }
-//                ship match {
-//                  case Some(ship) =>
-//                    ship
-//                  case _ =>
-//                    createShip(typeShip)
-//                }
+                ship.getOrElse(createShip(typeShip))
               case _ =>
                 println("You have to choose the orientation H or V")
                 createShip(typeShip)
@@ -92,7 +73,8 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
     }
   }
 
-  override def shoot(): Square = {
+  @tailrec
+  override final def shoot(): Square = {
     println("It is your turn to shoot. Please provides the square where you want to shoot.")
     val x = readLine(s"Enter the x coordinate (Between ${Board.startX} and ${Board.endX}) : ")
     x.toCharArray.length  match {
@@ -136,14 +118,16 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
 
   override def receivedShot(square: Square): (Player, Boolean, Option[Ship]) = {
     val (newFleet: Fleet, touched: Boolean, ship: Option[Ship]) = fleet.receivedShot(square)
-    if(touched){
+    if(touched && ship.isDefined){
+      val newListShotsReceived: Set[Square] = (listShotsReceived + square.copy(state = State.SINK)).map(square => {
+        val squareShip: Option[Square] = ship.get.positions.find(squareShip => squareShip.x == square.x && squareShip.y == square.y)
+        squareShip.getOrElse(square)
+      })
+      (this.copy(fleet = newFleet, listShotsReceived = newListShotsReceived), touched, ship)
+    } else if(touched && ship.isEmpty) {
       (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square.copy(state = State.HIT)), touched, ship)
     } else {
       (this.copy(fleet = newFleet, listShotsReceived = listShotsReceived + square), touched, ship)
     }
-  }
-
-  override def didLose(): Boolean = {
-    fleet.listShips.dropWhile(ship => ship.positions.dropWhile(square => square.state == State.SINK).isEmpty).isEmpty
   }
 }

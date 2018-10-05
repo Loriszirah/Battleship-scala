@@ -47,5 +47,5 @@ trait Player{
     */
   def receivedShot(square: Square): (Player, Boolean, Option[Ship])
 
-  def didLose(): Boolean
+  def didLose(): Boolean = fleet.listShips.dropWhile(ship => ship.positions.dropWhile(square => square.state == State.SINK).isEmpty).isEmpty
 }
