@@ -47,7 +47,15 @@ trait Player{
     */
   def receivedShot(square: Square): (Player, Boolean, Option[Ship])
 
+  /**
+    * Check if a player lose the game e.g all the ships are sunk
+    * @return True of all the ships are sunk, False otherwise
+    */
   def didLose(): Boolean = fleet.listShips.dropWhile(ship => ship.positions.dropWhile(square => square.state == State.SINK).isEmpty).isEmpty
 
+  /**
+    * Reset the attributes of the player
+    * @return a new player with initialisation attributes
+    */
   def reset(): Player
 }

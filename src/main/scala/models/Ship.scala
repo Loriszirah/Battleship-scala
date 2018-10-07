@@ -6,10 +6,14 @@ import scala.annotation.tailrec
 
 case class Ship(positions: Set[Square], typeShip: TypeShip) {
 
-  def showPositions(): Unit ={
-    println(this.positions.mkString("\n"))
-  }
-
+  /**
+    * Check if the shot touched the ship and update it in consequence
+    * @param square the square representing the position of the shot
+    * @return the ship updated with the shot e.g the state of the square of the ship updated to HIT if the shot
+    *         touched the ship and all the square of the ship updated to SINK if the shot touched the last square of the
+    *         ship
+    *
+    */
   def receivedShot(square: Square): Ship = {
     if(this.positions.dropWhile(squareShip => (squareShip.x != square.x) && (squareShip.y != square.y)).nonEmpty){
       val newPositions: Set[Square] = this.positions.map(squareShip =>
@@ -25,6 +29,11 @@ case class Ship(positions: Set[Square], typeShip: TypeShip) {
     }
   }
 
+  /**
+    * Check if the ship given in parameter is overlapping this ship
+    * @param ship the ship to check
+    * @return a boolean, True if the ship given in parameter is overlapping this ship, False otherwise
+    */
   def isOverlaps(ship: Ship): Boolean = {
     positions.
       dropWhile(square =>
@@ -35,15 +44,22 @@ case class Ship(positions: Set[Square], typeShip: TypeShip) {
       .nonEmpty
   }
 
+  /**
+    * Check if the square given in parameter is touching this ship
+    * @param square the square representing the position to check
+    * @return a boolean, True if the square is touching the ship, False otherwise
+    */
   def isTouched(square: Square): Boolean = {
     positions.dropWhile(squareShip => squareShip.x != square.x || squareShip.y != square.y).nonEmpty
   }
 
+  /**
+    * Check if this ship is sunk e.g if all the square of this ship are hit
+    * @return a boolean, True if this ship is sunk, False otherwise
+    */
   def isSunk: Boolean = {
     this.positions.dropWhile(square => square.state==State.SINK).isEmpty
   }
-
-  override def toString: String = "This ship is type of " + this.typeShip.name
 }
 
 case class TypeShip(name: String, size: Int)
@@ -59,6 +75,14 @@ object Ship {
 
   def apply(positions: Set[Square], typeShip: TypeShip) = new Ship(positions, typeShip)
 
+  /**
+    * Constructor of the ship
+    * @param x the start of the ship on the X axis
+    * @param y the start of the ship on the Y axis
+    * @param orientation the orientation of the ship (either Ship.VERTICAL or Ship.HORIZONTAL)
+    * @param typeShip the type of the ship to create
+    * @return an option of ship: return a Ship if the ship is in the grid, None otherwise
+    */
   def apply(x: Char, y: Int, orientation: String, typeShip: TypeShip): Option[Ship] = {
     val positions = generatePosition(x, y, orientation, typeShip)
     positions match {
@@ -69,6 +93,15 @@ object Ship {
     }
   }
 
+  /**
+    * Generate the Set of squares representing the position of the ship
+    * @param x the start of the ship on the X axis
+    * @param y the start of the ship on the Y axis
+    * @param orientation the orientation of the ship (either Ship.VERTICAL or Ship.HORIZONTAL)
+    * @param typeShip the type of the ship to create
+    * @return an option set of squares representing the position of the ship. It return None if the at least one square
+    *         of the ship is not in the grid
+    */
   def generatePosition(x: Char, y: Int, orientation: String, typeShip: TypeShip): Option[Set[Square]] ={
     @tailrec
     def generatePositionTailRec(x: Char, y: Int, orientation: String, typeShip: TypeShip, positions: Set[Square]): Option[Set[Square]]={

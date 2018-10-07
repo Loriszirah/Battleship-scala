@@ -13,6 +13,14 @@ object Battleship extends App {
   val randomP2: Random = new Random()
   mainLoop(GameState(null, null, None), randomP1, randomP2)
 
+  /**
+    * Initialization loop of the game. Called at the if the user wants to chose a game mode and the username of the
+    * players
+    * @param gameState the gameState of the game
+    * @param randomP1 the random object for the first AI
+    * @param randomP2 the random object for the second AI
+    */
+  @tailrec
   def mainLoop(gameState: GameState, randomP1: Random, randomP2: Random): Unit ={
     // print("\033[H\033[2J")
     print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -49,7 +57,7 @@ object Battleship extends App {
       case "HvsAI" =>
         val usernameP1: String = readLine("Enter your username: ")
         val player1 = Human(usernameP1)
-        val player2 = getAI(username = "2", randomP2)
+        val player2 = getAILevel(username = "2", randomP2)
         mainGameLoop(gameState.copy(player1 = player1, player2 = player2))
       case "HvsH" =>
         val usernameP1: String = readLine("Enter the username of the player 1: ")
@@ -59,10 +67,10 @@ object Battleship extends App {
         mainGameLoop(gameState.copy(player1 = player1, player2 = player2))
       case "AIvsAI" =>
         println("First AI")
-        val player1 = getAI(username = "1", randomP1)
+        val player1 = getAILevel(username = "1", randomP1)
         println()
         println("Second AI")
-        val player2 = getAI(username = "2", randomP2)
+        val player2 = getAILevel(username = "2", randomP2)
         mainGameLoop(gameState.copy(player1 = player1, player2 = player2))
       case "TestAIs" =>
         runTestAIs(randomP1, randomP2)
@@ -72,6 +80,10 @@ object Battleship extends App {
     }
   }
 
+  /**
+    * Loop managing the start and the end of the game.
+    * @param gameState the gameState of the game
+    */
   @tailrec
   def mainGameLoop(gameState: GameState): Unit = {
     val newGameState = initBoard(gameState)
@@ -82,21 +94,35 @@ object Battleship extends App {
     println()
     val game: String = getEndGameOption
     game match {
-      case "1" => mainGameLoop(GameState(finalGameState.player1.reset(), finalGameState.player2.reset(), None))
+      case "1" => mainGameLoop(GameState(finalGameState.player2.reset(), finalGameState.player1.reset(), None))
       case "2" => mainLoop(GameState(null, null, None), randomP1, randomP2)
       case _ =>
     }
   }
 
+  /**
+    * Init the ships of the 2 players in the gameState
+    * @param gameState the gameState of the game
+    * @return the new gameState with the 2 players updated with the placement of their ships
+    */
   def initBoard(gameState: GameState): GameState = {
     val newPlayer1: Player = gameState.player1.placeShips(Board.typeShipsToPlace)
     val newPlayer2: Player = gameState.player2.placeShips(Board.typeShipsToPlace)
     gameState.copy(player1 = newPlayer1, player2 = newPlayer2)
   }
 
+  /**
+    * Run the test of the AIs. 100 games are run for each configuration :
+    * - LowAI vs MediumAI
+    * - LowAI vs HardAI
+    * - MediumAI vs HardAI
+    * @param randomP1 the random object for the first player
+    * @param randomP2 the random object for the second player
+    */
   def runTestAIs(randomP1: Random, randomP2: Random): Unit = {
+    @tailrec
     def runTestAIsTailRec(firstAI: Player, secondAI: Player, nbGames: Int, scores: List[List[Int]]): Unit = {
-      if(nbGames == 0) {
+      if(nbGames == 0) { // Either print the results or run the next simulation depending on the type of the current AIs
         (firstAI, secondAI) match {
           case (_: MediumAI, _: HardAI) | (_: HardAI, _: MediumAI)=>
             println("Results of the AIs vs AIs \n\n" +
@@ -118,36 +144,44 @@ object Battleship extends App {
             runTestAIsTailRec(MediumAI(random = first.asInstanceOf[LowAI].random), second, 100, scores)
           case (first: HardAI, second: LowAI) =>
             runTestAIsTailRec(MediumAI(random = second.asInstanceOf[LowAI].random), first, 100, scores)
+          case _ => println("Unknown combination of AIs")
         }
-      } else {
+      } else { // Playing the new game
         val newGameState = initBoard(GameState(firstAI, secondAI, None))
         val finalGameState = gameLoop(newGameState)
+        // Recursive call depending on the type of the current AIs
         (finalGameState.player1, finalGameState.player2, finalGameState.winner.get) match {
           case (_: LowAI, _: MediumAI, _: LowAI) | (_: MediumAI, _: LowAI, _: LowAI) =>
             val newScores: List[List[Int]] = scores.updated(0, List(scores.head.head+1,scores.head(1)))
-            runTestAIsTailRec(firstAI, secondAI,  nbGames-1, newScores)
+            runTestAIsTailRec(secondAI, firstAI,  nbGames-1, newScores)
           case (_: LowAI, _: MediumAI, _: MediumAI) | (_: MediumAI, _: LowAI, _: MediumAI) =>
             val newScores: List[List[Int]] = scores.updated(0, List(scores.head.head,scores.head(1)+1))
-            runTestAIsTailRec(firstAI, secondAI, nbGames-1, newScores)
+            runTestAIsTailRec(secondAI, firstAI, nbGames-1, newScores)
           case (_: LowAI, _: HardAI, _: LowAI) | (_: HardAI, _: LowAI, _: LowAI) =>
             val newScores: List[List[Int]] = scores.updated(1, List(scores(1).head+1,scores(1)(1)))
-            runTestAIsTailRec(firstAI, secondAI, nbGames-1, newScores)
+            runTestAIsTailRec(secondAI, firstAI, nbGames-1, newScores)
           case (_: LowAI, _: HardAI, _: HardAI) | (_: HardAI, _: LowAI, _: HardAI) =>
             val newScores: List[List[Int]] = scores.updated(1, List(scores(1).head,scores(1)(1)+1))
-            runTestAIsTailRec(firstAI, secondAI, nbGames-1, newScores)
+            runTestAIsTailRec(secondAI, firstAI, nbGames-1, newScores)
           case (_: MediumAI, _: HardAI, _: MediumAI) | (_: HardAI, _: MediumAI, _: MediumAI) =>
             val newScores: List[List[Int]] = scores.updated(2, List(scores(2).head+1,scores(2)(1)))
-            runTestAIsTailRec(firstAI, secondAI, nbGames-1, newScores)
+            runTestAIsTailRec(secondAI, firstAI, nbGames-1, newScores)
           case (_: MediumAI, _: HardAI, _: HardAI) | (_: HardAI, _: MediumAI, _: HardAI) =>
             val newScores: List[List[Int]] = scores.updated(2, List(scores(2).head,scores(2)(1)+1))
-            runTestAIsTailRec(firstAI, secondAI, nbGames-1, newScores)
-          case _ => println("issue")
+            runTestAIsTailRec(secondAI, firstAI, nbGames-1, newScores)
+          case _ => println("Unknown combination of AIs")
         }
       }
     }
     runTestAIsTailRec(LowAI(random = randomP1), MediumAI(random = randomP2), 100, List(List(0,0), List(0,0), List(0,0)))
   }
 
+  /**
+    * Loop for the steps of a game. Every step the players are swaped to alternate the shot
+    * @param gameState the gameState of the current game
+    * @return the gameState of the end of the current game, the property winner is updated with the winner (either
+    *         player 1 or player 2)
+    */
   @tailrec
   def gameLoop(gameState: GameState): GameState ={
     if(gameState.player1.isInstanceOf[Human]) {
@@ -177,7 +211,13 @@ object Battleship extends App {
     }
   }
 
-  @tailrec
+  /**
+    * Ask the user what he wants to do next. This function is generally called after the end of a game
+    * @return a string representing the choice of the user.
+    *         - "1" for a Rematch
+    *         - "2" for staring a new game
+    *         - "3" for quiting the game
+    */
   def getEndGameOption: String = {
     val option: String = readLine(
       "Do you want to: \n" +
@@ -190,7 +230,14 @@ object Battleship extends App {
     }
   }
 
-  @tailrec
+  /**
+    * Ask the user which mode he wants to play.
+    * @return a string representing the choice of the user :
+    *         - "1" for AI vs AI
+    *         - "2" for Human vs AI
+    *         - "3" for Human vs Human
+    *         - "4" for running the test on the AIs
+    */
   def getGameMode: String = {
     val gameMode: String = scala.io.StdIn.readLine("Do you want to :\n" +
       "   - 1: play AI vs AI\n" +
@@ -208,8 +255,13 @@ object Battleship extends App {
     }
   }
 
-  @tailrec
-  def getAI(username: String, random: Random): Player = {
+  /**
+    * Ask the user the level of an AI
+    * @param username the username of the AI
+    * @param random the random object of the AI
+    * @return the AI choose by the user
+    */
+  def getAILevel(username: String, random: Random): Player = {
     val AIlevel: String = readLine("There is 3 levels of IA. Which one do you want to play against ? L: Low, M: Medium, H: Hard")
     AIlevel match {
       case "L" =>
@@ -220,7 +272,7 @@ object Battleship extends App {
         HardAI(username = "HardAI " + username, random = randomP2)
       case _ =>
         println("Unspecified AILevel")
-        getAI(username, random)
+        getAILevel(username, random)
     }
   }
 }
