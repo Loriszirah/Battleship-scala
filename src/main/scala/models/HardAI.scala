@@ -5,8 +5,8 @@ import utils.Board
 import scala.annotation.tailrec
 import scala.util.Random
 
-case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGiven: Set[Square] = Set(),
-         listShotsReceived: Set[Square] = Set(), listSinkShips: Set[Ship] = Set(), random: Random) extends Player {
+case class HardAI(username: String = "HardAI", fleet: Fleet = Fleet(), listShotsGiven: Set[Square] = Set(),
+                 listShotsReceived: Set[Square] = Set(), listSinkShips: Set[Ship] = Set(), random: Random) extends Player {
 
   override def placeShips(listShips: List[TypeShip]): Player = {
     @tailrec
@@ -28,9 +28,44 @@ case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGi
   }
 
   override def shoot(): Square = {
-    val x: Char = (this.random.nextInt(Board.endX.toInt-Board.startX.toInt+1)+Board.startX.toInt).toChar
-    val y: Int = this.random.nextInt(Board.endY-Board.startY+1)+Board.startY
-    Square(x, y, State.SHOT)
+    def shootTailRec(listShotsGivenLeft: Set[Square]): Square = {
+      val hit: Option[Square] = listShotsGivenLeft.find(square => square.state == State.HIT)
+      if(hit.isDefined) {
+        if (Board.nextX(hit.get.x).isDefined &&
+          !listShotsGivenLeft.exists(square => square.x == Board.nextX(hit.get.x).get && square.y == hit.get.y)) { // Right
+          Square(Board.nextX(hit.get.x).get, hit.get.y, State.SHOT)
+        } else {
+          if (Board.nextY(hit.get.y).isDefined &&
+            !listShotsGivenLeft.exists(square => square.x == hit.get.x && square.y == Board.nextY(hit.get.y).get)) { // Down
+            Square(hit.get.x, Board.nextY(hit.get.y).get, State.SHOT)
+          } else {
+            if (Board.previousX(hit.get.x).isDefined &&
+              !listShotsGivenLeft.exists(square => square.x == Board.previousX(hit.get.x).get && square.y == hit.get.y)) {
+              // Left
+              Square(Board.previousX(hit.get.x).get, hit.get.y, State.SHOT)
+            } else {
+              if (Board.previousY(hit.get.y).isDefined &&
+                !listShotsGivenLeft.exists(square => square.x == hit.get.x && square.y == Board.previousY(hit.get.y).get)) {
+                // Up
+                Square(hit.get.x, Board.previousY(hit.get.y).get, State.SHOT)
+              } else {
+                shootTailRec(listShotsGivenLeft.map(square => if(square.x == hit.get.x && square.y == hit.get.y) square.copy(state = State.SHOT) else square))
+              }
+            }
+          }
+        }
+      } else {
+        val x: Char = (this.random.nextInt(Board.endX.toInt-Board.startX.toInt+1)+Board.startX.toInt).toChar
+        val y: Int = this.random.nextInt(Board.endY-Board.startY+1)+Board.startY
+        val squareShot: Square = Square(x, y, State.SHOT)
+        if(listShotsGivenLeft.exists(square => square.x == squareShot.x && square.y == squareShot.y)) {
+          shootTailRec(listShotsGivenLeft)
+        } else {
+          squareShot
+        }
+      }
+    }
+    shootTailRec(listShotsGiven)
   }
 
   override def createShip(typeShip: TypeShip): Ship = {
@@ -80,5 +115,5 @@ case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGi
     }
   }
 
-  override def reset(): Player = LowAI(username = this.username, random = new Random())
+  override def reset(): Player = HardAI(random = random)
 }

@@ -5,8 +5,9 @@ import utils.Board
 import scala.annotation.tailrec
 import scala.util.Random
 
-case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGiven: Set[Square] = Set(),
-         listShotsReceived: Set[Square] = Set(), listSinkShips: Set[Ship] = Set(), random: Random) extends Player {
+case class MediumAI(username: String = "MediumAI", fleet: Fleet = Fleet(), listShotsGiven: Set[Square] = Set(),
+                 listShotsReceived: Set[Square] = Set(), listSinkShips: Set[Ship] = Set(), random: Random)
+  extends Player {
 
   override def placeShips(listShips: List[TypeShip]): Player = {
     @tailrec
@@ -30,7 +31,12 @@ case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGi
   override def shoot(): Square = {
     val x: Char = (this.random.nextInt(Board.endX.toInt-Board.startX.toInt+1)+Board.startX.toInt).toChar
     val y: Int = this.random.nextInt(Board.endY-Board.startY+1)+Board.startY
-    Square(x, y, State.SHOT)
+    val squareShot: Square = Square(x, y, State.SHOT)
+    if(listShotsGiven.exists(square => square.x == squareShot.x && square.y == squareShot.y)) {
+      shoot()
+    } else {
+      squareShot
+    }
   }
 
   override def createShip(typeShip: TypeShip): Ship = {
@@ -80,5 +86,5 @@ case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGi
     }
   }
 
-  override def reset(): Player = LowAI(username = this.username, random = new Random())
+  override def reset(): Player = MediumAI(username = this.username, random = new Random())
 }
