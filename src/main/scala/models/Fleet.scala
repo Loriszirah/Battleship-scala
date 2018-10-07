@@ -4,14 +4,6 @@ import scala.collection.immutable.Set
 
 case class Fleet(listShips: Set[Ship] = Set()) {
 
-  /**
-    *
-    * @param square the square where the player wants to shoot
-    * @return
-    */
-  def hasTouched(square: Square): (Fleet, Boolean, Boolean) = ???
-    //this.copy(this.listShips.map(ship => ship.hasTouched(square)))
-
   def addShip(ship: Ship): Option[Fleet] = {
     if(!isOverlaps(ship)) {
       Some(this.copy(listShips = this.listShips + ship))

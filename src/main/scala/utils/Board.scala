@@ -5,8 +5,7 @@ import models._
 import scala.annotation.tailrec
 
 object Board {
-  //val typeShipsToPlace: List[TypeShip] = List(Ship.CARRIER, Ship.BATTLESHIP, Ship.CRUISER, Ship.SUBMARINE, Ship.DESTROYER)
-  val typeShipsToPlace: List[TypeShip] = List(Ship.CARRIER, Ship.BATTLESHIP)
+  val typeShipsToPlace: List[TypeShip] = List(Ship.CARRIER, Ship.BATTLESHIP, Ship.CRUISER, Ship.SUBMARINE, Ship.DESTROYER)
   val startX = 'A'
   val endX = 'J'
 
@@ -22,6 +21,18 @@ object Board {
     if(yInBoard(y)) {
       if (y < endY) {
         Some(y + 1)
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+
+  def previousY(y: Int): Option[Int] = {
+    if(yInBoard(y)) {
+      if (y > startY) {
+        Some(y - 1)
       } else {
         None
       }
@@ -47,6 +58,18 @@ object Board {
     }
   }
 
+  def previousX(x: Char): Option[Char] = {
+    if(xInBoard(x)) {
+      if (!x.equals(startX)) {
+        Some((x - 1).toChar)
+      } else {
+        None
+      }
+    }else{
+      None
+    }
+  }
+
   def xInBoard(x: Char): Boolean = {
     if(x.toInt >= startX.toInt && x.toInt <= endX.toInt) true
     else false
@@ -55,6 +78,22 @@ object Board {
   def yInBoard(y: Int): Boolean = {
     if(y >= startY && y <= endY) true
     else false
+  }
+
+  def generateListSquares(): Set[Square] = {
+    @tailrec
+    def generateListSquareTailRec(x: Char, y: Int, listSquares: Set[Square]): Set[Square] = {
+      if(Board.nextX(x).isDefined){
+        generateListSquareTailRec(Board.nextX(x).get, y, listSquares + Square(x, y, State.WATER))
+      } else{
+        if(Board.nextY(y).isDefined){
+          generateListSquareTailRec(Board.startX, Board.nextY(y).get, listSquares + Square(x, y, State.WATER))
+        } else{
+          listSquares + Square(x, y, State.WATER)
+        }
+      }
+    }
+    generateListSquareTailRec(startX, startY, Set())
   }
 
   @tailrec

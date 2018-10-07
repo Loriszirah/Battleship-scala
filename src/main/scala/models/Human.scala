@@ -96,6 +96,7 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
               }
           }
         }
+      case _ => shoot()
     }
   }
 
@@ -138,4 +139,6 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
       }
     }
   }
+
+  override def reset(): Player = Human(username = this.username)
 }
