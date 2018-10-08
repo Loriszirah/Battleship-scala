@@ -1,6 +1,6 @@
 package utils
 
-import models.{Player, LowAI, MediumAI, HardAI}
+import models.{HardAI, LowAI, MediumAI, Player}
 
 import scala.io.StdIn.readLine
 import scala.util.Random
@@ -31,7 +31,6 @@ object Input {
         } else {
           val y = readLine(s"Enter the y coordinate (Between ${Board.startY} and ${Board.endY}) : ")
           y match {
-            // TODO : Try to understand
             case number if number.matches("\\d+") =>
               if (!Board.yInBoard(number.toInt)) {
                 println(s"y needs to be between ${Board.startY} and ${Board.endY}")
@@ -42,6 +41,40 @@ object Input {
           }
         }
       case _ => getCoordinates
+    }
+  }
+
+  def getCoordinatesShip: (Char, Int, String) = {
+    val x = readLine(s"Enter the x coordinate (Between ${Board.startX} and ${Board.endX}) : ")
+    x.toCharArray.length match {
+      case 1 =>
+        val charX = x.charAt(0)
+        if(!Board.xInBoard(charX)){
+          println(s"x needs to be between ${Board.startX} and ${Board.endX}")
+          getCoordinatesShip
+        }
+        val y = readLine(s"Enter the y coordinate (Between ${Board.startY} and ${Board.endY}) : ")
+        y match {
+          case number if number.matches("\\d+") =>
+            if (!Board.yInBoard(number.toInt)) {
+              println(s"y needs to be between ${Board.startY} and ${Board.endY}")
+              getCoordinatesShip
+            }
+            val orientation = readLine("Choose the orientation : H : Horizontal || V : Vertical ")
+            orientation match {
+              case "H" | "V" =>
+                (charX, y.toInt, orientation)
+              case _ =>
+                println("You have to choose the orientation H or V")
+                getCoordinatesShip
+            }
+          case _ =>
+            println("y needs to be between '1' and '10'")
+            getCoordinatesShip
+        }
+      case _ =>
+        println("x needs to be composed of only one character")
+        getCoordinatesShip
     }
   }
 

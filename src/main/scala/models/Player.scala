@@ -29,7 +29,7 @@ trait Player{
   def createShip(typeShip: TypeShip): Ship
 
   /**
-    *
+    * Handle the behavior when the result of a shot is received
     * @param square the square where this player has shot
     * @param hasTouched a boolean to know if a ship of the other player has been touched by the shot on this square
     *                   True if the shot at this square has touched a ship
@@ -40,7 +40,7 @@ trait Player{
   def hasShot(square: Square, hasTouched: Boolean, sinkShip: Option[Ship]): Player
 
   /**
-    *
+    * Handle the behavior when a player is receiving a shot
     * @param square the square where the other player has chose to shoot
     * @return the new player updated, a boolean True if a ship has been touched by this shot, False otherwise and a
     *         Ship option with the ship that has been potentially down by this shot

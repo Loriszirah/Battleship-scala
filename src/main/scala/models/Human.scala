@@ -1,9 +1,8 @@
 package models
 
-import utils.{Board, BoardOutput, Input}
+import utils.{BoardOutput, Input}
 
 import scala.annotation.tailrec
-import scala.io.StdIn.readLine
 
 case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShotsGiven: Set[Square] = Set(),
                  listShotsReceived: Set[Square] = Set(), listSinkShips: Set[Ship] = Set()) extends Player {
@@ -13,7 +12,7 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
     def placeShipTailRec(listShips: List[TypeShip], fleet: Fleet): Fleet ={
       println()
       if(listShips.isEmpty) {
-        BoardOutput.renderGridReceived(this)
+        BoardOutput.renderGridReceived(this.copy(fleet = fleet))
         fleet
       }
       else{
@@ -23,7 +22,7 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
           placeShipTailRec(listShips.tail, newFleet.get)
         } else {
           println("The ships you placed is superimposed with an other ship already inside your fleet")
-          BoardOutput.renderGridReceived(this)
+          BoardOutput.renderGridReceived(this.copy(fleet = fleet))
           placeShipTailRec(listShips, fleet)
         }
       }
@@ -35,41 +34,14 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
 
   override def createShip(typeShip: TypeShip): Ship = {
     println(s"Creation of the ship ${typeShip.name} with a size of ${typeShip.size}")
-    val x = readLine(s"Enter the x coordinate (Between ${Board.startX} and ${Board.endX}) : ")
-    x.toCharArray.length match {
-      case 1 =>
-        val charX = x.charAt(0)
-        if(!Board.xInBoard(charX)){
-          println(s"x needs to be between ${Board.startX} and ${Board.endX}")
-          createShip(typeShip)
-        }
-        val y = readLine(s"Enter the y coordinate (Between ${Board.startY} and ${Board.endY}) : ")
-        y match {
-          // TODO : Try to understand
-          case number if number.matches("\\d+") =>
-            if (!Board.yInBoard(number.toInt)) {
-              println(s"y needs to be between ${Board.startY} and ${Board.endY}")
-              createShip(typeShip)
-            }
-            val orientation = readLine("Choose the orientation : H : Horizontal || V : Vertical ")
-            orientation match {
-              case "H" =>
-                val ship = Ship(charX, y.toInt, Ship.HORIZONTAL, typeShip)
-                ship.getOrElse(createShip(typeShip))
-              case "V" =>
-                val ship = Ship(charX, y.toInt, Ship.VERTICAL, typeShip)
-                ship.getOrElse(createShip(typeShip))
-              case _ =>
-                println("You have to choose the orientation H or V")
-                createShip(typeShip)
-            }
-          case _ =>
-            println("y needs to be between '1' and '10'")
-            createShip(typeShip)
-        }
-      case _ =>
-        println("x needs to be composed of only one character")
-        createShip(typeShip)
+    val (x, y, orientation) = Input.getCoordinatesShip
+    orientation match {
+      case "H" =>
+        val ship = Ship(x, y.toInt, Ship.HORIZONTAL, typeShip)
+        ship.getOrElse(createShip(typeShip))
+      case "V" =>
+        val ship = Ship(x, y.toInt, Ship.VERTICAL, typeShip)
+        ship.getOrElse(createShip(typeShip))
     }
   }
 
