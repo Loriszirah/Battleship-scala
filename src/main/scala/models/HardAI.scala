@@ -115,5 +115,5 @@ case class HardAI(username: String = "HardAI", fleet: Fleet = Fleet(), listShots
     }
   }
 
-  override def reset(): Player = HardAI(random = random)
+  override def reset(): Player = HardAI(username = this.username, random = this.random)
 }

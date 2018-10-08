@@ -90,8 +90,6 @@ object Battleship extends App {
     val newGameState = initBoard(gameState)
     val finalGameState = gameLoop(gameState.copy(player1 = newGameState.player1, player2 = newGameState.player2))
     println(s"${finalGameState.winner.get.username} won the Game. Well Played!!!!")
-    println(s"Number of shots of the player ${finalGameState.player1.username} ${finalGameState.player1.listShotsGiven.size}")
-    println(s"Number of shots of the player ${finalGameState.player2.username} ${finalGameState.player2.listShotsGiven.size}")
     println()
     val game: String = Input.getEndGameOption
     game match {

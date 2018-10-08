@@ -86,5 +86,5 @@ case class MediumAI(username: String = "MediumAI", fleet: Fleet = Fleet(), listS
     }
   }
 
-  override def reset(): Player = MediumAI(username = this.username, random = new Random())
+  override def reset(): Player = MediumAI(username = this.username, random = this.random)
 }

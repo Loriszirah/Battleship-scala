@@ -80,5 +80,5 @@ case class LowAI(username: String = "LowAI", fleet: Fleet = Fleet(), listShotsGi
     }
   }
 
-  override def reset(): Player = LowAI(username = this.username, random = new Random())
+  override def reset(): Player = LowAI(username = this.username, random = this.random)
 }
