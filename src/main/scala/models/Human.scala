@@ -1,6 +1,6 @@
 package models
 
-import utils.Board
+import utils.{Board, BoardOutput, Input}
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
@@ -13,17 +13,17 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
     def placeShipTailRec(listShips: List[TypeShip], fleet: Fleet): Fleet ={
       println()
       if(listShips.isEmpty) {
-        Board.renderGridReceived(this)
+        BoardOutput.renderGridReceived(this)
         fleet
       }
       else{
         val newFleet: Option[Fleet] = fleet.addShip(this.createShip(listShips.head))
         if(newFleet.isDefined) {
-          Board.renderGridReceived(this.copy(fleet = newFleet.get))
+          BoardOutput.renderGridReceived(this.copy(fleet = newFleet.get))
           placeShipTailRec(listShips.tail, newFleet.get)
         } else {
           println("The ships you placed is superimposed with an other ship already inside your fleet")
-          Board.renderGridReceived(this)
+          BoardOutput.renderGridReceived(this)
           placeShipTailRec(listShips, fleet)
         }
       }
@@ -73,31 +73,10 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
     }
   }
 
-  @tailrec
   override final def shoot(): Square = {
     println("It is your turn to shoot. Please provides the square where you want to shoot.")
-    val x = readLine(s"Enter the x coordinate (Between ${Board.startX} and ${Board.endX}) : ")
-    x.toCharArray.length  match {
-      case 1 =>
-        val charX = x.charAt(0)
-        if (!Board.xInBoard(charX)) {
-          println(s"x needs to be between ${Board.startX} and ${Board.endX}")
-          shoot()
-        } else {
-          val y = readLine(s"Enter the y coordinate (Between ${Board.startY} and ${Board.endY}) : ")
-          y match {
-            // TODO : Try to understand
-            case number if number.matches("\\d+") =>
-              if (!Board.yInBoard(number.toInt)) {
-                println(s"y needs to be between ${Board.startY} and ${Board.endY}")
-                shoot()
-              } else{
-                Square(charX, number.toInt, State.SHOT)
-              }
-          }
-        }
-      case _ => shoot()
-    }
+    val (x, y) = Input.getCoordinates
+    Square(x, y, State.SHOT)
   }
 
   override def hasShot(square: Square, hasTouched: Boolean, sinkShip: Option[Ship]): Player = {

@@ -4,6 +4,12 @@ import scala.collection.immutable.Set
 
 case class Fleet(listShips: Set[Ship] = Set()) {
 
+  /***
+    * Add a ship to this fleet
+    * @param ship the ship to add
+    * @return an option of fleet, return the updated fleet if the ship has been added or None if the ship is overlapping
+    *         with an existing ship in the fleet
+    */
   def addShip(ship: Ship): Option[Fleet] = {
     if(!isOverlaps(ship)) {
       Some(this.copy(listShips = this.listShips + ship))
