@@ -1,13 +1,7 @@
 import models._
 import org.scalatest._
 
-class HumanTest extends FlatSpec with Matchers {
-//  "The human" should "choose a valid shot" in{
-//    val human = Human()
-//    val shot = human.shoot()
-//    assert(Board.xInBoard(shot.x) && Board.yInBoard(shot.y))
-//  }
-
+class HumanTest extends FlatSpec {
   "The human" should "change the state of the square touched by a shot" in {
     val ship = Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get
     val fleet = Fleet()

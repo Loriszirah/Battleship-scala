@@ -1,7 +1,7 @@
 import models.{Ship, Square, State}
 import org.scalatest._
 
-class ShipTest extends FlatSpec with Matchers {
+class ShipTest extends FlatSpec {
   // ############ Constructor test ############
   // ************ Grid test ************
   "The ship" should "be a None if x in not in the grid" in {

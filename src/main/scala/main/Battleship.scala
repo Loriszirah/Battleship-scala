@@ -50,7 +50,7 @@ object Battleship extends App {
                   ${Console.RED}'|`${Console.GREEN}         +---------------___[}-_===_.'____                 /\\
                           ____`-' ||___-{]_| _[}-  |     |_[___\\==--            \\/   _
            __..._____--==/___]_|__|_____________________________[___\\==--____,------' .7
-          |                                                               IG5-CARRIER/
+          |                            LORIS ZIRAH                        IG5-CARRIER/
            \\________________________________________________________________________|
        ${Console.RESET}""")
     val gameMode: String = Input.getGameMode

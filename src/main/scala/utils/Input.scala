@@ -38,6 +38,7 @@ object Input {
               } else{
                 (charX, number.toInt)
               }
+            case _ => getCoordinates
           }
         }
       case _ => getCoordinates
