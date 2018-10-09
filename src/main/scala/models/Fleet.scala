@@ -11,7 +11,7 @@ case class Fleet(listShips: Set[Ship] = Set()) {
     *         with an existing ship in the fleet
     */
   def addShip(ship: Ship): Option[Fleet] = {
-    if(!isOverlaps(ship)) {
+    if(!isOverlapping(ship)) {
       Some(this.copy(listShips = this.listShips + ship))
     } else{
       None
@@ -44,9 +44,9 @@ case class Fleet(listShips: Set[Ship] = Set()) {
     * @param ship the ship to check
     * @return a boolean, True if the ship given in parameter is overlapping one of the ship in the fleet, False otherwise
     */
-  def isOverlaps(ship: Ship): Boolean = {
+  def isOverlapping(ship: Ship): Boolean = {
     if(listShips.isEmpty) false
-    else listShips.dropWhile(shipFleet => !shipFleet.isOverlaps(ship)).nonEmpty
+    else listShips.dropWhile(shipFleet => !shipFleet.isOverlapping(ship)).nonEmpty
   }
 
   /**

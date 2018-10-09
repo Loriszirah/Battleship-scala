@@ -34,7 +34,7 @@ case class Ship(positions: Set[Square], typeShip: TypeShip) {
     * @param ship the ship to check
     * @return a boolean, True if the ship given in parameter is overlapping this ship, False otherwise
     */
-  def isOverlaps(ship: Ship): Boolean = {
+  def isOverlapping(ship: Ship): Boolean = {
     positions.
       dropWhile(square =>
         ship.positions.

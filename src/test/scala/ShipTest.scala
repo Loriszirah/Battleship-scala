@@ -37,11 +37,11 @@ class ShipTest extends FlatSpec with Matchers {
 
   // ############ Test overlaps method ############
   it should "be overlapsed" in {
-    assert(Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get.isOverlaps(Ship('B', 1, Ship.HORIZONTAL, Ship.DESTROYER).get))
+    assert(Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get.isOverlapping(Ship('B', 1, Ship.HORIZONTAL, Ship.DESTROYER).get))
   }
 
   it should "not be overlapsed" in {
-    assert(!Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get.isOverlaps(Ship('D', 1, Ship.HORIZONTAL, Ship.DESTROYER).get))
+    assert(!Ship('A', 1, Ship.HORIZONTAL, Ship.DESTROYER).get.isOverlapping(Ship('D', 1, Ship.HORIZONTAL, Ship.DESTROYER).get))
   }
 
   // ############ Test isTouched method ############

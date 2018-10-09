@@ -21,7 +21,7 @@ case class Human(username: String = "unknown", fleet: Fleet = Fleet(), listShots
           BoardOutput.renderGridReceived(this.copy(fleet = newFleet.get))
           placeShipTailRec(listShips.tail, newFleet.get)
         } else {
-          println("The ships you placed is superimposed with an other ship already inside your fleet")
+          println("The ships you placed is superimposed with another ship already inside your fleet")
           BoardOutput.renderGridReceived(this.copy(fleet = fleet))
           placeShipTailRec(listShips, fleet)
         }
